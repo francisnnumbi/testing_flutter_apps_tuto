@@ -49,7 +49,7 @@ void main() {
       );
     }
 
-    ;
+
 
     // Arrange Act Assert
     test("gets articles using the NewsService", () async {

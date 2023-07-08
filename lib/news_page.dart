@@ -1,22 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:get/get.dart';
 import 'package:testing_flutter_apps_tuto/article_page.dart';
-import 'package:testing_flutter_apps_tuto/news_change_notifier.dart';
+import 'package:testing_flutter_apps_tuto/news_controller.dart';
 
-class NewsPage extends StatefulWidget {
-  const NewsPage({Key? key}) : super(key: key);
-
-  @override
-  State<NewsPage> createState() => _NewsPageState();
-}
-
-class _NewsPageState extends State<NewsPage> {
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(
-          () => context.read<NewsChangeNotifier>().getArticles(),
-    );
+class NewsPage extends StatelessWidget {
+  NewsPage({super.key}) {
+    NewsController.to.getArticles();
   }
 
   @override
@@ -24,46 +13,53 @@ class _NewsPageState extends State<NewsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('News'),
+        actions: [
+          Obx(
+            () => (NewsController.to.articles.isEmpty)
+                ? const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ),)
+                : const SizedBox(),
+
+          ),
+          const SizedBox(width: 10,),
+        ],
       ),
-      body: Consumer<NewsChangeNotifier>(
-        builder: (context, notifier, child) {
-          if (notifier.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          return ListView.builder(
-            itemCount: notifier.articles.length,
-            itemBuilder: (_, index) {
-              final article = notifier.articles[index];
-              return Card(
-                elevation: 2,
-                child: InkWell(
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => ArticlePage(article: article),
+      body: Obx(() {
+        return NewsController.to.articles.isEmpty
+            ? const Center(child: CircularProgressIndicator())
+            : ListView.builder(
+                itemCount: NewsController.to.articles.length,
+                itemBuilder: (_, index) {
+                  final article = NewsController.to.articles[index];
+                  return Card(
+                    elevation: 2,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => ArticlePage(article: article),
+                          ),
+                        );
+                      },
+                      child: ListTile(
+                        title: Text(article.title),
+                        subtitle: Text(
+                          article.content,
+                          maxLines: 4,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    );
-                  },
-                  child: ListTile(
-                    title: Text(article.title),
-                    subtitle: Text(
-                      article.content,
-                      maxLines: 4,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
+                  );
+                },
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 16,
                 ),
               );
-            },
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8,
-              vertical: 16,
-            ),
-          );
-        },
-      ),
+      }),
     );
   }
 }
