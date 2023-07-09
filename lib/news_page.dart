@@ -13,11 +13,12 @@ class NewsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('News'),
-        actions: [
+       actions: [
           Obx(
             () => (NewsController.to.articles.isEmpty)
                 ? const Center(
                 child: CircularProgressIndicator(
+                  key: Key("np-cpi01"),
                   color: Colors.white,
                 ),)
                 : const SizedBox(),
@@ -28,7 +29,7 @@ class NewsPage extends StatelessWidget {
       ),
       body: Obx(() {
         return NewsController.to.articles.isEmpty
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator(key: Key("np-cpi02"),))
             : ListView.builder(
                 itemCount: NewsController.to.articles.length,
                 itemBuilder: (_, index) {
